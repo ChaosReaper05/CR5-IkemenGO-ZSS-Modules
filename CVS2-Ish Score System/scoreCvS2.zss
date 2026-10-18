@@ -1,0 +1,142 @@
+#===============================================================================
+# Functions
+#===============================================================================
+# Win Dramatic
+[Function CvS2Sys_WinDramatic() ret]
+let ret = 0;
+if winHyper && (map(_iksys_winFlag) = 0 || map(_iksys_winFlag) = gameTime) && (p2, PrevAnim = const(AnimTaunt) || p2, PrevAnim <= 4999 && p2, PrevAnim >= 1000) {
+	let ret = 1;
+	map(_iksys_winFlag) := gameTime;
+}
+
+[Function CvS2Sys_WinNormal() ret]
+let ret = 0;
+if winKo && (map(_iksys_winFlag) = 0 || map(_iksys_winFlag) = gameTime) && !winSpecial && !WinHyper{
+	let ret = 1;
+	map(_iksys_winFlag) := gameTime;
+}
+
+[Function CvS2Sys_MaxCombo() ret]
+let ret = 0;
+if roundState = 0 {
+	map(_cvs2sys_comboCountMax) := 0;
+}
+if comboCount != map(_cvs2sys_comboCountMax) {
+	if map(_cvs2sys_comboCountMax) < ComboCount {
+		map(_cvs2sys_comboCountMax) := comboCount;
+	}
+	map(_cvs2sys_comboCountRet) := map(_cvs2sys_comboCountMax);
+}
+if winKo && (map(_iksys_winFlag) = 0 || map(_iksys_winFlag) = gameTime){
+	let ret = map(_cvs2sys_comboCountRet);
+	map(_iksys_winFlag) := gametime;	
+}
+
+#===============================================================================
+# Global states (not halted by Pause/SuperPause, no helper limitations)
+#===============================================================================
+[StateDef -4]
+
+ignoreHitPause if !const(Default.Enable.Score) || teamSide = 0 {
+	# do nothing, global code disabled locally or executed by stage
+} else if roundState = 0 {
+	# score: starting score
+	if !isHelper && PlayerNo = teamside && MatchNo = 1 && roundNo = 1 && map(_cvs2sys_matchStartScoreFlag) = 0 {
+		scoreAdd{value: 100}
+		map(_cvs2sys_matchStartScoreFlag) := 1;
+	}
+	map(_iksys_scoreTimeVitalFlag) := 0;
+} else if roundState >= 2 {
+	# score: first attack bonus
+	if !isHelper {
+		let ret = call IkSys_FirstAttack();
+		if $ret {
+			scoreAdd{value: 5}
+		}
+	}
+	# score: hit bonus
+	if MoveHitVar(frame) = 1 && enemy, GetHitVar(guarded) != 1 && MoveContact {
+		scoreAdd{value: 0.5}
+		scoreAdd{value: -0.5; redirectId: enemy,id}
+	}
+	# score: block bonus
+	if enemy, MoveHitVar(frame) = 1 && GetHitVar(guarded) = 1 && enemy, MoveContact {
+		scoreAdd{value: 0.05}
+		scoreAdd{value: -0.05; redirectId: enemy,id}
+	}
+	# score: counter bonus
+	let ret = call IkSys_CounterHit();
+	if $ret {
+		scoreAdd{value: 1}
+	}
+	# score: reversal bonus
+	let ret = call IkSys_Reversal();
+	if $ret {
+		scoreAdd{value: 2}
+	}
+	# score: just defend bonus
+	let ret = call IkSys_JustDefend();
+	if $ret {
+		scoreAdd{value: 2}
+	}
+	# code executed only by P1 and P2
+	if playerNo = teamSide && !isHelper {
+		# score: combo count bonus
+		let ret = call IkSys_ComboCount();
+		if $ret {
+			scoreAdd{value: ((2 * ifelse($ret > 1, $ret - 1, 0)) + (0.5 * ifelse($ret > 5, $ret - 5, 0)))}
+		}
+		# score: win perfect bonus
+		let ret = call IkSys_WinPerfect();
+		if $ret {
+			scoreAdd{value: 50}
+			scoreAdd{value: -50; redirectId: enemy,id}
+		}
+		# score: win dramatic bonus
+		let ret = call CvS2Sys_WinDramatic();
+		if $ret {
+			lifebarAction{text: "Dramatic Finish"; timeMul: 3; top: 0}
+			scoreAdd{value: 50}
+			scoreAdd{value: -50; redirectId: enemy,id}
+		}
+		# score: win hyper bonus
+		let ret = call IkSys_WinHyper();
+		if $ret && !(p2, PrevAnim = const(AnimTaunt) || p2, PrevAnim <= 4999 && p2, PrevAnim >= 1000) {
+			scoreAdd{value: 40}
+			scoreAdd{value: -40; redirectId: enemy,id}
+		}
+		# score: win special bonus
+		let ret = call IkSys_WinSpecial();
+		if $ret {
+			scoreAdd{value: 20}
+			scoreAdd{value: -20; redirectId: enemy,id}
+		}
+		# score: win normal bonus
+		let ret = call CvS2Sys_WinNormal();
+		if $ret {
+			lifebarAction{text: "Finish"; timeMul: 3; top: 0}
+			scoreAdd{value: 10}
+			scoreAdd{value: -10; redirectId: enemy,id}
+		}
+		# score: max combo bonus
+		let ret = call CvS2Sys_MaxCombo();
+		if $ret {
+			scoreAdd{value: IfElse($ret <= 9, 5 * $ret, 0) + IfElse($ret > 9, 3 * $ret, 0)}
+		}
+		# score: vital bonus
+		let liferatio = float(life)/lifemax;
+		if !IsHelper && win && map(_iksys_scoreTimeVitalFlag) = 0 && alive {
+			scoreAdd{value: IfElse($liferatio >= 0.9, 20, IfElse($liferatio >= 0.5, 10, 5))}
+			map(_iksys_scoreTimeVitalFlag) := 1;
+		}
+		# score: win streak bonus
+		let ret = call IkSys_WinStreak();
+		if $ret {
+			scoreAdd{value: 20 + IfElse(ConsecutiveWins > 1, (ConsecutiveWins - 1) * 10, 0)}
+		}
+		# score: time penalty
+		if RoundTime > 600 && RoundTime%60 = 0 && alive && roundstate = 2 && pauseTime = 0 {
+			scoreAdd{value: -0.5}
+		}
+	}
+}
