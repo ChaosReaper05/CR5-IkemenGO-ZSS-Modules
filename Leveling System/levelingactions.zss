@@ -1,0 +1,63 @@
+#===============================================================================
+# Global states (not halted by Pause/SuperPause, no helper limitations)
+#===============================================================================
+[StateDef -4]
+ignoreHitPause if roundState >= 2 {
+	# Earn EXP when performing a...
+	# First Attack
+	if !isHelper {
+		let ret = call IkSys_FirstAttack();
+		if $ret {
+			mapAdd{map: "_lvlsys_exp"; value: 50;}
+		}
+	}
+	# Counter
+	let ret = call IkSys_CounterHit();
+	if $ret {
+		mapAdd{map: "_lvlsys_exp"; value: 10;}
+	}
+	# Reversal
+	let ret = call IkSys_Reversal();
+	if $ret {
+		mapAdd{map: "_lvlsys_exp"; value: 20;}
+	}
+	# Just Defend
+	let ret = call IkSys_JustDefend();
+	if $ret {
+		mapAdd{map: "_lvlsys_exp"; value: 20;}
+	}
+	if playerNo = teamSide && !isHelper {
+		# Earn EXP when winning with...
+		# Full health (Perfect)
+		let ret = call IkSys_WinPerfect();
+		if $ret {
+			mapAdd{map: "_lvlsys_exp"; value: 500;}
+		}
+		# Super move
+		let ret = call IkSys_WinHyper();
+		if $ret {
+			mapAdd{map: "_lvlsys_exp"; value: 400;}
+		}
+		# Special move
+		let ret = call IkSys_WinSpecial();
+		if $ret {
+			mapAdd{map: "_lvlsys_exp"; value: 200;}
+		}
+	}
+}
+
+[Statedef -2]
+
+if map(_levelsysflag_modifiedplayer) = 0 && !IsHelper {
+	# Increase max HP by 25 with every level
+	modifyplayer{
+		lifemax: float(lifeMax) + (floor(map(_lvlsys_level)) * 25);
+	}
+	# At the first round, max out life to account for the extra health
+	if roundsExisted = 0 {
+		lifeSet{
+			value: lifemax;
+		}
+	}
+	map(_levelsysflag_modifiedplayer) := 1;
+}
