@@ -13,3 +13,6 @@ Installation instructions can be found on the README file inside each folder
 ## List of modules
 ### Leveling System
 A relatively simplistic module, meant to mimic a leveling system found in most RPGs, heavily inspired by older Pokémon games. By default, characters will not be affected by the module, and it's up to the user decide how they interact with the system. A brief tutorial and a few exemples can be found alongside the "Leveling System" folder.
+
+### CvS 2-Ish Score system
+Inspired by Capcom Vs. SNK 2, this module attempts to mimic the game's GP system using Ikemen GO's score. It is not a perfect recreation, as the goal of this module is to be universal.
