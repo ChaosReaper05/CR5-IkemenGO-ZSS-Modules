@@ -1,4 +1,4 @@
-# ZSS Modules for Ikemen GO by ChaosReaper05
+# Repository of ZSS Modules by ChaosReaper05
 
 This is a repository for all my modules for the Ikemen GO engine
 
