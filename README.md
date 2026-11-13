@@ -16,3 +16,6 @@ A relatively simplistic module, meant to mimic a leveling system found in most R
 
 ### CvS 2-Ish Score system
 Inspired by Capcom Vs. SNK 2, this module attempts to mimic the game's GP system using Ikemen GO's score. It is not a perfect recreation, as the goal of this module is to be universal.
+
+### Score Battle
+A gamemode centered around the score system. Players now win not by depleting the opponent's health, but by earning more points than the other player.
