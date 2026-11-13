@@ -1,0 +1,42 @@
+[Statedef +1]
+
+if GameMode = "scorebattle" {
+    if roundState = 2 {
+        if TimeElapsed < 3599 {
+            AssertSpecial {
+                flag: GlobalNoKo;
+            }
+            if PauseTime = 0 {
+                if MoveType != H && TimeElapsed % 2 && TeamMode != tag {
+                    lifeAdd {
+                        value: 1;
+                    }
+                }
+                if MoveType != H && TimeElapsed % 2 && TeamMode = tag {
+                    redlifeAdd {
+                        value: 1;
+                    }
+                }
+                if life <= (lifemax * 0.25) && TimeElapsed%30 = 0 {
+                    ScoreAdd{
+                        value: -25;
+                    }
+                }
+            }
+        }
+        if TimeElapsed >= 3599 {
+            if score > p2, score {
+                # Win
+            } else {
+                # Lose
+                LifeSet {
+                    value: -1;
+                }
+            }
+        }
+    }
+    DisplayToClipboard{
+        text: "Time: %i";
+        params: TimeElapsed;
+    }
+}
