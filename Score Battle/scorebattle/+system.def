@@ -6,7 +6,9 @@
 	; You need to add itemname to the main system.def so menu items keep the expected order. Grouping rules:
 	; https://github.com/ikemen-engine/Ikemen-GO/wiki/Screenpack-features#menus
 ;menu.itemname.scorebattle = SCORE BATTLE
+;menu.itemname.netplayscorebattle = SCORE BATTLE
 
 
 [Select Info]
-title.scorebattle.text = "Score Battle"
+title.scorebattle.text = Score Battle
+title.netplayscorebattle.text = Online Score Battle
