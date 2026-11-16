@@ -7,12 +7,12 @@ Points are earned through score. Whoever has the most score at the end of a 1 mi
 ## Installation
 Drop the "scorebattle.zss" file in the "data" folder, then open "config.ini" file inside the "save" folder and add the following line at the very end of "States"
 
-, data/scorebattle.zss
+> , data/scorebattle.zss
 
 Insert the "scorebattle" folder directly inside the "mods" folder. Then, open your "system.def" file and add the following lines to [Title Info]
 
-menu.itemname.scorebattle = SCORE BATTLE
-menu.itemname.server.netplayscorebattle = SCORE BATTLE
+> menu.itemname.scorebattle = SCORE BATTLE   
+> menu.itemname.server.netplayscorebattle = SCORE BATTLE
 
 ## Core gameplay
 - Both players begin with 0 score, and must earn more through it by doing combos or specific actions, such as counter hits
