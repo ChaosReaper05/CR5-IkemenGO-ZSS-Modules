@@ -1,0 +1,125 @@
+[Function KotH_Settings() ret]
+mapset{map: "koth_config_capturelimit"; value: 300}				# How much capture points a player must have to hold the point
+mapset{map: "koth_config_capturesize_left"; value: -100}		# How large the left side of the capture zone is (Default: -100)
+mapset{map: "koth_config_capturesize_right"; value: 100}		# How large the right side of the capture zone is (Default: 100)
+
+mapset{map: "koth_config_font"; value: 3}						# Font for the hud (taken from screenpack)
+mapset{map: "koth_config_scale"; value: 1}						# Font scale
+mapset{map: "koth_config_xoffset"; value: 10}					# Font X offset
+mapset{map: "koth_config_yoffset"; value: 60}					# Font Y offset
+
+[StateDef +1]
+if gameMode = "kingofthehill" {
+	call KotH_Settings();
+	if roundState <= 1{
+		map(koth_captured) := 0;
+		map(koth_capturepoints) := 0;
+	}
+	if roundState = 2 {
+		assertSpecial {
+			flag: noHitDamage;
+		}
+		if p2, map(koth_captured) = 1 && timeElapsed % 2 && pauseTime = 0 {
+			if life > 1 {
+				lifeAdd {
+					value: -1;
+				}
+			} else if map(koth_capturepoints) <= 0 {
+				lifeSet {
+					value: -1;
+				}
+			}
+		}
+		# If player is on control point
+		if pos X + cameraPos X = [map(koth_config_capturesize_left), map(koth_config_capturesize_right)]
+		&& p2, pos X + cameraPos X != [map(koth_config_capturesize_left),map(koth_config_capturesize_right)]
+		&& timeElapsed >= 180 {
+			# If Enemy has no capture points
+			if p2, map(koth_capturepoints) <= 0 {
+				# Start bulding up points
+				if map(koth_captured) = 0 {
+					teamMapAdd {
+						map: "koth_capturepoints";
+						value: 1000 / float(lifemax);
+					}
+				}
+			} else {
+				# Remove points from opponent
+				teamMapAdd {
+					map: "koth_capturepoints";
+					value: -1;
+					redirectid: p2, id;
+				}
+			}
+		}
+		# When reaching max capture points
+		if map(koth_capturepoints) >= map(koth_config_capturelimit) {
+			# Capture point
+			teamMapSet {
+				map: "koth_captured";
+				value: 1;
+			}
+			teamMapSet {
+				map: "koth_captured";
+				value: 0;
+				redirectid: p2, id;
+			}
+			teamMapSet {
+				map: "koth_capturepoints";
+				value: 0;
+			}
+			teamMapSet {
+				map: "koth_flag_message";
+				value: 0;
+				redirectid: p2, id;
+			}
+			if !map(koth_flag_message) && playerNo = teamleader {
+				lifebarAction{
+					text: "Point Captured";
+				}
+				map(koth_flag_message) := 1;
+			}
+		}
+	}
+	call KotH_Settings();
+	map(koth_capturepercentage) := float(map(koth_capturepoints) / map(koth_config_capturelimit)) * 100;
+	if !numText(9999) {
+		if playerno = 1 {
+			text {
+				id: 9999;
+				removetime: -1;
+				layerno: 1;
+				localcoord: 320, 240;
+				text: "Capture Points = %0.f%%";
+				params: map(koth_capturepercentage);
+				font: F map(koth_config_font);
+				bank: 0;
+				align: 1;
+				pos: map(koth_config_xoffset), map(koth_config_yoffset);
+				scale: map(koth_config_scale), map(koth_config_scale);
+				hidewithbars: 1;
+			}
+		} else if playerno = 2 {
+			text {
+				id: 9999;
+				removetime: -1;
+				layerno: 1;
+				localcoord: 320, 240;
+				text: "%0.0f%% = Capture Points";
+				params: map(koth_capturepercentage);
+				font: F map(koth_config_font);
+				bank: 0;
+				align: -1;
+				pos: 320 - map(koth_config_xoffset), map(koth_config_yoffset);
+				scale: map(koth_config_scale), map(koth_config_scale);
+				hidewithbars: 1;
+			}
+		}
+	} else {
+		modifyText{
+			id: 9999;
+			params: map(koth_capturepercentage);
+			color: cond(map(koth_captured), 0, 255), 255, cond(map(koth_captured), 0, 255)
+		}
+	}
+}
