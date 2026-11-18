@@ -2,7 +2,7 @@
 
 A gamemode inspired by FPS games, where players win not by defeating the opponent, but by holding the central area of the stage for a certain period of time
 
-Points are earned through score. Whoever has the most score at the end of a 1 minute timer, wins
+The player who holds the control point for the longest amount of time wins
 
 ## Installation
 Drop the "koth.zss" file in the "data" folder, then open "config.ini" file inside the "save" folder and add the following line at the very end of "States"
