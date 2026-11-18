@@ -11,7 +11,7 @@ Drop the "koth.zss" file in the "data" folder, then open "config.ini" file insid
 
 Insert the "kingofthehill" folder directly inside the "mods" folder. Then, open your "system.def" file and add the following lines to [Title Info]
 
-menu.itemname.kingofthehill = KING OF THE HILL
+menu.itemname.kingofthehill = KING OF THE HILL	
 menu.itemname.server.netplaykingofthehill = KING OF THE HILL
 
 ## Core gameplay
